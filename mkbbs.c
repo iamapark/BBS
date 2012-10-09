@@ -107,6 +107,11 @@ void confirm_file(){
 	int dValue = access(".", W_OK);
 	char buf[255];
 
+	if(dValue==-1){
+		printf("시스템 오류: 권한이 없습니다.\n");
+		exit(1);
+	}
+
 	if(bValue==0){  // board.index 파일 존재
 		if(aValue==0){ // article.index 파일 존재
 			printf("하위 게시판을 생성할 수 없습니다.\n");
@@ -117,10 +122,7 @@ void confirm_file(){
 		exit(1);
 	}
 
-	if(dValue==-1){
-		printf("시스템 오류: 권한이 없습니다.\n");
-		exit(1);
-	}
+	
 
 	memset(buf, 0x00, 255);
     if(readlink(".", buf, 255)==0){
@@ -139,7 +141,7 @@ void get_boardType(char* boardType){
 	scanf("%s", boardType);
 
 	if(strcmp(boardType, "3")==0){
-		printf("취소되었습니다.");
+		printf("\n취소되었습니다.");
 		exit(1);
 	}
 }

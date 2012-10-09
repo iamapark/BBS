@@ -126,7 +126,6 @@ int searchDIR(const char *name, const struct stat *status, int type)
 				perror("unlink");
 			printf("% - 30s*\t0%3o-%s\n", name, status->st_mode&0777, symbol);*/
 			if(strcmp(name, symbol)!=0){
-				printf("Other Directory\n");
 				printf("해당 게시판은 하위 게시판을 가지고 있습니다. 하위 게시판을 먼저 삭제해야합니다.");
 				exit(1);
 			}
