@@ -1,17 +1,19 @@
 ﻿#include "delbbs.h"
 
+char* symbol;
+
 int main(int argc, char **argv){
 	
-	char* symbol = argv[1];
+	symbol = argv[1];
 
-	confirm_file();
+	confirm_file(argv[1]);
 	delDirFile(argv[1]);
 	set_BoardIndex(argv[1]);
 
 	return 1;
 }
 
-void confirm_file(){
+void confirm_file(const char *symbol){
 	int bValue = access("board.index", 0);
 	int aValue = access("article.index", 0);
 	int dValue = access(".", W_OK);
@@ -31,6 +33,8 @@ void confirm_file(){
 		printf("시스템 오류: 권한이 없습니다.\n");
 		exit(1);
 	}
+
+	ftw(symbol, searchDIR, 1);
 }
 
 int delDirFile(const char* folder)
@@ -53,7 +57,7 @@ int delDirFile(const char* folder)
       if(!(dirp = readdir(dp)))
       {
          closedir(dp);
-         //remove(folder);
+         remove(folder);
          return -1;
       }
 
@@ -62,32 +66,25 @@ int delDirFile(const char* folder)
  
       if((file_stat.st_mode & S_IFMT) == S_IFDIR)        // Directory 이면...
       {	
-			if(cnt>1){
-			printf("해당 게시판은 하위 게시판을 가지고 있습니다. 하위 게시판을 먼저 삭제해야합니다.\n");
-			exit(1);
-			}
-
-			cnt++;
 			continue;
       }
-      /*if(remove(targetfile) == 0)
+      if(remove(targetfile) == 0)
       {
+		 printf("게시판 %s가 삭제되었습니다.\n", folder);
          continue;
       }
       else
       {
          perror("remove Error : ");
          break;
-      }*/
+      }
    }
    return 1;
 }
 
 void set_BoardIndex(const char* symbol){
-	//board.index 파일에서 사용자가 입력한 심볼과 일치하는
-	// 디렉토리가 있는지 검색한다.
 
-	FILE* file = fopen("board.index", "rt");
+	FILE* file = fopen("board.index", "r+");
 	char buf[160];
 	char* p;
 	char s[4];
@@ -99,15 +96,18 @@ void set_BoardIndex(const char* symbol){
 		if(cnt >= 6){
 			if(cnt==6){
 				if(strcmp(buf, symbol)==0){
-					printf("딩댕댕");
+					flag = 1;
+					fseek(file, -1-strlen(symbol), SEEK_CUR);
+					fputs(" ", file);
 				}
 			}	
 			
 			if(flag==0){
 				if(buf[0]=='#') flag++;
 				else if(strcmp(buf, symbol)==0){
-					flag = 2;
-					printf("딩댕댕");
+					flag = 1;
+					fseek(file, -1-strlen(symbol), SEEK_CUR);
+					fputs(" ", file);
 				}else
 					flag = 2;
 			}
@@ -117,5 +117,28 @@ void set_BoardIndex(const char* symbol){
 	}		
 }
 
+int searchDIR(const char *name, const struct stat *status, int type)
+{
+	switch ( type )
+	{
+		case FTW_D:
+			/*if ( rmdir(name) == -1 )
+				perror("unlink");
+			printf("% - 30s*\t0%3o-%s\n", name, status->st_mode&0777, symbol);*/
+			if(strcmp(name, symbol)!=0){
+				printf("Other Directory\n");
+				printf("해당 게시판은 하위 게시판을 가지고 있습니다. 하위 게시판을 먼저 삭제해야합니다.");
+				exit(1);
+			}
+			break;
+ 
+		/*case FTW_F:
+		case FTW_SL:
+			printf("% - 30s\t0%3o\n", name, status->st_mode&0777);
+			if ( unlink(name) == -1 )
+				perror("unlink");
+			break;*/
+	}
 
-
+	return 0;
+}

@@ -18,3 +18,5 @@ typedef enum{
 void confirm_file();
 int delDirFile(const char* folder);
 void set_BoardIndex(const char* symbol);
+void confirm_file(const char *symbol);
+int searchDIR(const char *name, const struct stat *status, int type);
