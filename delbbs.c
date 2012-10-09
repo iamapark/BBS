@@ -4,8 +4,9 @@ int main(int argc, char **argv){
 	
 	char* symbol = argv[1];
 
-	//confirm_file();
-	deleteDir(symbol);
+	confirm_file();
+	delDirFile(argv[1]);
+	set_BoardIndex(argv[1]);
 
 	return 1;
 }
@@ -32,22 +33,89 @@ void confirm_file(){
 	}
 }
 
-void deleteDir(char* symbol){
-	DIR* dp;
-	struct dirent *dirp;
-	struct stat file_stat;
-	char targetfile[512];
-
-	sprintf(targetfile, "%s/%s", symbol, dirp->d_name);   // Path와 파일이름을 합친다
-    stat(targetfile, &file_stat);
-
-	if( rmdir(symbol)  == -1){
-		printf("해당 게시판은 하위 게시판을 가지고 있습니다. 하위 게시판을 먼저 삭제해야합니다.\n");
+int delDirFile(const char* folder)
+{
+   DIR* dp;
+   struct dirent *dirp;
+   struct stat file_stat;
+   char targetfile[512];
+   int cnt = 0;
+ 
+ 
+   if((dp = opendir(folder)) == NULL)
+   {
+      printf("해당 게시판이 존재하지 않습니다.\n");
 		exit(1);
-	}
-	
+   }
+ 
+   while(1)
+   {
+      if(!(dirp = readdir(dp)))
+      {
+         closedir(dp);
+         //remove(folder);
+         return -1;
+      }
 
+	  sprintf(targetfile, "%s/%s", folder, dirp->d_name);   // Path와 파일이름을 합친다
+      stat(targetfile, &file_stat);
+ 
+      if((file_stat.st_mode & S_IFMT) == S_IFDIR)        // Directory 이면...
+      {	
+			if(cnt>1){
+			printf("해당 게시판은 하위 게시판을 가지고 있습니다. 하위 게시판을 먼저 삭제해야합니다.\n");
+			exit(1);
+			}
 
-	printf("게시판 %s이 삭제되었습니다.", symbol);
-
+			cnt++;
+			continue;
+      }
+      /*if(remove(targetfile) == 0)
+      {
+         continue;
+      }
+      else
+      {
+         perror("remove Error : ");
+         break;
+      }*/
+   }
+   return 1;
 }
+
+void set_BoardIndex(const char* symbol){
+	//board.index 파일에서 사용자가 입력한 심볼과 일치하는
+	// 디렉토리가 있는지 검색한다.
+
+	FILE* file = fopen("board.index", "rt");
+	char buf[160];
+	char* p;
+	char s[4];
+	int cnt = 0;
+	int flag = 2;
+
+	while(fgets(buf, 160, file)!=NULL){
+		if((p=strchr(buf, '\n'))!=NULL) *p = '\0';
+		if(cnt >= 6){
+			if(cnt==6){
+				if(strcmp(buf, symbol)==0){
+					printf("딩댕댕");
+				}
+			}	
+			
+			if(flag==0){
+				if(buf[0]=='#') flag++;
+				else if(strcmp(buf, symbol)==0){
+					flag = 2;
+					printf("딩댕댕");
+				}else
+					flag = 2;
+			}
+			flag--;
+		}
+		cnt++;
+	}		
+}
+
+
+

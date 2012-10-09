@@ -8,5 +8,13 @@
 #include <errno.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <ftw.h>
+
+typedef enum{
+	FALSE,
+	TRUE
+} BOOL;
 
 void confirm_file();
+int delDirFile(const char* folder);
+void set_BoardIndex(const char* symbol);
