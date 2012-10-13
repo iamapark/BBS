@@ -12,5 +12,5 @@ BOOL confirmIndexFile(char* deleteIndex);
 BOOL confirmFileWriter(char* deleteIndex, char* fileSubject);
 char* get_writer();
 BOOL deleteFile(char* deleteIndex);
-void set_ArticleIndex(char* index, char* subject, int* position);
+void set_ArticleIndex(char* index, char* subject, int* position, char* deleteIndex);
 char* get_fileIndexNum(char* index, int* pos);

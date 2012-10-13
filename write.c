@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[])
 {
-	char numOfArticle[100]; 
+	char numOfArticle[100];
 	char currentIndex[100];
 	char* subject = (char *)malloc(sizeof(char) * 128*100);
 	char* content = (char *)malloc(sizeof(char) * 100*100*100);
@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
 	get_fileIndexNum(currentIndex, numOfArticle, &nCurrentIndex, &nNumOfArticle);
 	file = open_File(currentIndex, "w+");
-	
+
 	set_Subject(subject, file);
 	set_Content(content, file);
 	set_ArticleIndex(currentIndex, numOfArticle, subject, &nCurrentIndex, &nNumOfArticle);
@@ -27,11 +27,11 @@ int main(int argc, char* argv[])
 
 FILE* open_File(char* index, char* mode){
 	FILE* file = fopen(index, mode);
-	
+
 	if(file==NULL){
-		printf("파일 생성 실패");	
+		printf("파일 생성 실패");
 	}else{
-		printf("파일 생성 성공");
+		//printf("파일 생성 성공");
 	}
 
 	return file;
@@ -52,7 +52,7 @@ void set_Subject(char* subject, FILE* file){
 void set_Content(char* content, FILE* file){
 
 	char ch;
-	
+
 	printf("내용을 입력하세요. 입력을 종료하려면 마지막 줄에 마침표(.)를 입력하고 엔터(Enter)키를 누르세요.\n");
 
 	while(1){
@@ -98,7 +98,7 @@ void get_fileIndexNum(char* currentIndex, char* numOfArticle, int *nCurrentIndex
 }
 
 void set_ArticleIndex(char* currentIndex, char* numOfArticle, char* subject, int *pCurrentIndex, int *pNumOfArticle){
-	
+
 	FILE* file = fopen("article.index", "r+");
 	int nCurrentIndex = atoi(currentIndex);
 	int nNumOfArticle = atoi(numOfArticle);
@@ -110,13 +110,13 @@ void set_ArticleIndex(char* currentIndex, char* numOfArticle, char* subject, int
 	nNumOfArticle++;
 	sprintf(a, "%d", nCurrentIndex);
 	sprintf(b, "%d", nNumOfArticle);
-	
-	fseek(file, *pCurrentIndex, SEEK_SET); 
+
+	fseek(file, *pCurrentIndex, SEEK_SET); //이 숫자를 임의로 정하는 것이 아니라 article.index에서 위치를 찾을 수 있어야 함
 	fputs(a, file);
 
-	fseek(file, *pNumOfArticle, SEEK_SET); 
+	fseek(file, *pNumOfArticle, SEEK_SET); //위 주석과 마찬가지
 	fputs(b, file);
-	
+
 	fclose(file);
 
 	file = fopen("article.index", "a+t");

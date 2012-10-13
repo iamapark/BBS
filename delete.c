@@ -18,17 +18,17 @@ int main(int argc, char* argv[]){
 			return 2;
 
 		deleteIndex = argv[1];
-	
+
 		if(confirmIndexFile(deleteIndex)){
 			if(confirmFileWriter(deleteIndex, fileSubject)){
 				if(deleteFile(deleteIndex)){
 					get_fileIndexNum(index, &pos);
-					set_ArticleIndex(index, fileSubject, &pos);
+					set_ArticleIndex(index, fileSubject, &pos, deleteIndex);
 				}else{
 					printf("해당 파일을 삭제할 수 없습니다.");
 					return 2;
 				}
-				
+
 			}else{
 				printf("다른 사용자가 작성한 글은 삭제할 수 없습니다.\n");
 			}
@@ -136,12 +136,13 @@ char* get_fileIndexNum(char* index, int* pos){
 	return index;
 }
 
-void set_ArticleIndex(char* index, char* subject, int* position){
+void set_ArticleIndex(char* index, char* subject, int* position, char* deleteIndex){
 	int nIndex = atoi(index);
 	char buf[160];
 	char* p;
 	int pos=0;
 	int cnt=0;
+	int flag = 3;
 	FILE* file = fopen("article.index", "r+");
 
 	sprintf(index, "%d", nIndex-1);
@@ -150,19 +151,33 @@ void set_ArticleIndex(char* index, char* subject, int* position){
 	fputs(index, file);
 	fflush(file);
 
+
 	fseek(file, 0, SEEK_SET);
 
-	while(fgets(buf, sizeof(buf), file)!=NULL){
-		if((p = strchr(buf, '\n'))!= NULL) *p = '\0';
+	while(fgets(buf, 160, file)!=NULL){
+			if((p=strchr(buf, '\n'))!=NULL) *p = '\0';
+			if(cnt >= 7){
+				if(cnt==7){
+					if(strcmp(buf, deleteIndex)==0){
+						flag = 1;
+						fseek(file, -1-strlen(deleteIndex), SEEK_CUR);
+						fputs("D", file);
+					}
+				}
 
-		if(strcmp(buf, subject)==0){
-			pos = ftell(file);
-			break;
-		}
+				if(flag==0){
+					if(buf[0]=='#') flag++;
+					else if(strcmp(buf, deleteIndex)==0){
+						flag = 1;
+						fseek(file, -1-strlen(deleteIndex), SEEK_CUR);
+						fputs("D", file);
+					}else
+						flag = 2;
+				}
+				flag--;
+			}
+			cnt++;
 	}
-
-	fseek(file, pos-strlen(subject)-strlen(index)-strlen(index), SEEK_SET);
-	fputc(68,file);
 
 	fclose(file);
 }
